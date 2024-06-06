@@ -198,3 +198,74 @@ public:
     }
 };
 
+int main() {
+
+    Graph<std::string> graph;
+
+    // Add vertices
+    graph.add_vertex("A");
+    graph.add_vertex("B");
+    graph.add_vertex("C");
+    graph.add_vertex("D");
+
+    // Add edges
+    graph.add_edge("A", "B", 1.0);
+    graph.add_edge("A", "C", 2.0);
+    graph.add_edge("B", "C", 1.5);
+    graph.add_edge("C", "D", 2.5);
+
+    // Check vertices
+    std::cout << "Vertices in the graph: ";
+    for (const auto& v : graph.vertices()) {
+        std::cout << v << " ";
+    }
+    std::cout << std::endl;
+
+    // Check edges
+    std::cout << "Edges from vertex A: ";
+    for (const auto& edge : graph.edges("A")) {
+        std::cout << "(" << edge.from << " -> " << edge.to << ", " << edge.distance << ") ";
+    }
+    std::cout << std::endl;
+
+    // Check if graph has specific vertices and edges
+    std::cout << "Graph has vertex A: " << (graph.has_vertex("A") ? "Yes" : "No") << std::endl;
+    std::cout << "Graph has edge from A to B: " << (graph.has_edge("A", "B") ? "Yes" : "No") << std::endl;
+
+    // Remove edge and check again
+    graph.delete_edge("A", "B");
+    std::cout << "Graph has edge from A to B after removal: " << (graph.has_edge("A", "B") ? "Yes" : "No") << std::endl;
+
+    // Shortest path
+    auto path = graph.shortest_path("A", "D");
+    std::cout << "Shortest path from A to D: ";
+    for (const auto& edge : path) {
+        std::cout << "(" << edge.from << " -> " << edge.to << ", " << edge.distance << ") ";
+    }
+    std::cout << std::endl;
+
+    // Walk the graph
+    auto walk_result = graph.walk("A");
+    std::cout << "Walk starting from A: ";
+    for (const auto& v : walk_result) {
+        std::cout << v << " ";
+    }
+    std::cout << std::endl;
+
+    Graph<int, double> g;
+    g.add_vertex(1);
+    g.add_vertex(2);
+    g.add_vertex(3);
+    g.add_vertex(4);
+    g.add_edge(1, 2, 5.0);
+    g.add_edge(2, 1, 5.0);
+    g.add_edge(2, 3, 7.0);
+    g.add_edge(3, 2, 7.0);
+    g.add_edge(3, 4, 10.0);
+    g.add_edge(4, 3, 10.0);
+
+    int furthest_vertex = g.furthest_from_neighbors();
+    std::cout << "The trauma center furthest from its direct neighbors is: " << furthest_vertex << std::endl;
+
+    return 0;
+}

@@ -112,4 +112,89 @@ public:
         }
         return 0;
     }
-    
+    std::vector<Edge> shortest_path(const Vertex& from, const Vertex& to) const {
+        std::unordered_map<Vertex, Distance> dist;
+        std::unordered_map<Vertex, Vertex> predecessor;
+        for (const auto& vertex : vertices()) {
+            dist[vertex] = std::numeric_limits<Distance>::infinity();
+            predecessor[vertex] = Vertex();
+        }
+        dist[from] = 0;
+        for (size_t i = 0; i < order() - 1; ++i) {
+            for (const auto& vertex : vertices()) {
+                auto it = _graph.find(vertex);
+                if (it != _graph.end()) {
+                    const auto& edges = it->second;
+                    for (const auto& edge : edges) {
+                        if (dist[vertex] + edge.distance < dist[edge.to]) {
+                            dist[edge.to] = dist[vertex] + edge.distance;
+                            predecessor[edge.to] = vertex;
+                        }
+                    }
+                }
+            }
+        }
+        std::vector<Edge> path;
+        for (Vertex current = to; current != Vertex(); current = predecessor[current]) {
+            Vertex pred = predecessor[current];
+            path.push_back({ pred, current, dist[current] });
+        }
+        std::reverse(path.begin(), path.end());
+        return path;
+    }
+    std::vector<Vertex> walk(const Vertex& start_vertex) const {
+        std::vector<Vertex> result;
+        if (!has_vertex(start_vertex)) {
+            return result;
+        }
+        std::unordered_map<Vertex, bool> visited;
+        std::queue<Vertex> queue;
+
+        visited[start_vertex] = true;
+        queue.push(start_vertex);
+        while (!queue.empty()) {
+            Vertex current = queue.front();
+            queue.pop();
+            result.push_back(current);
+            for (const auto& pair : _graph) {
+                const auto& edges = pair.second;
+                if (pair.first == current) {
+                    for (const auto& edge : edges) {
+                        if (!visited[edge.to]) {
+                            visited[edge.to] = true;
+                            queue.push(edge.to);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    Vertex furthest_from_neighbors() const {
+        Vertex furthest_vertex;
+        Distance max_average_distance = -1;
+
+        for (const auto& pair : _graph) {
+            const Vertex& vertex = pair.first;
+            const auto& edges = pair.second;
+
+            if (!edges.empty()) {
+                Distance total_distance = 0;
+                for (const auto& edge : edges) {
+                    total_distance += edge.distance;
+                }
+
+                Distance average_distance = total_distance / edges.size();
+                if (average_distance > max_average_distance) {
+                    max_average_distance = average_distance;
+                    furthest_vertex = vertex;
+                }
+            }
+        }
+
+        return furthest_vertex;
+    }
+};
+

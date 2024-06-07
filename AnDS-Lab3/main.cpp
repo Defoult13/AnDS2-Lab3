@@ -47,6 +47,9 @@ public:
         return result;
     }
     void add_edge(const Vertex& from, const Vertex& to, const Distance& d) {
+        if(d<=Distance()){
+            throw std::invalid_argument("Distance must be positive");
+        }
         if (has_vertex(from) && has_vertex(to)) {
             _graph[from].push_back(Edge(from, to, d));
         }
@@ -55,9 +58,9 @@ public:
         auto it = _graph.find(from);
         if (it != _graph.end()) {
             auto& edges = it->second;
-            auto edge_it = std::remove_if(edges.begin(), edges.end(), [&to](const Edge& e) {return e.to == to; });
+            auto edge_it = std::find_if(edges.begin(), edges.end(), [&to](const Edge& e) {return e.to == to; });
             if (edge_it != edges.end()) {
-                edges.erase(edge_it, edges.end());
+                edges.erase(edge_it);
                 return true;
             }
         }
@@ -67,11 +70,11 @@ public:
         auto it = _graph.find(e.from);
         if (it != _graph.end()) {
             auto& edges = it->second;
-            auto edge_it = std::remove_if(edges.begin(), edges.end(), [&e](const Edge& edge) {
+            auto edge_it = std::find_if(edges.begin(), edges.end(), [&e](const Edge& edge) {
                 return edge.from == e.from && edge.to == e.to && edge.distance == e.distance;
                 });
             if (edge_it != edges.end()) {
-                edges.erase(edge_it, edges.end());
+                edges.erase(edge_it);
                 return true;
             }
         }
@@ -193,7 +196,7 @@ public:
                 }
             }
         }
-
+        std::cout << "Max average distance:" << max_average_distance << std::endl;
         return furthest_vertex;
     }
 };
